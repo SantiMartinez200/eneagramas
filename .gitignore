@@ -1,30 +1,88 @@
+# ========================================
+# Laravel 12 - Archivo .gitignore
+# ========================================
+
+# Directorios de dependencias
 /vendor/
-node_modules/
-npm-debug.log
-yarn-error.log
+/node_modules/
 
-# Laravel 4 specific
-bootstrap/compiled.php
-app/storage/
-
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-
-# Laravel 5 & Lumen specific with changed public path
-public_html/storage
-public_html/hot
-
-storage/*.key
+# Archivos de entorno
 .env
-Homestead.yaml
-Homestead.json
-/.vagrant
-.phpunit.result.cache
-
-/public/build
-/storage/pail
 .env.backup
+.env.local
 .env.production
-.phpactor.json
-auth.json
+.env.development
+
+# Archivos de caché y compilados
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore
+
+# Compilaciones de Vite y Mix
+/public/hot
+/public/storage
+/storage/*.key
+/public/build
+/public/js/*.js
+/public/css/*.css
+
+# Archivos de depuración y logs
+/storage/logs/*.log
+/storage/debugbar/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/app/public/*
+/storage/app/tmp/*
+/storage/app/*.tmp
+/storage/app/*.bak
+/storage/app/*.log
+
+# Ignorar backups o dumps
+*.sql
+*.sqlite
+*.bak
+*.backup
+*.tmp
+*.old
+
+# IDEs y editores
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# Archivos de npm/yarn/pnpm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Tests y coverage
+.phpunit.result.cache
+coverage/
+.phpunit.cache
+
+# Otros
+*.swp
+*.swo
+*.orig
+*.log
+*.pid
+*.seed
+*.zip
+*.tar
+*.gz
+
+# ========================================
+# Fin del archivo
+# ========================================
