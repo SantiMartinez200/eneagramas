@@ -10,34 +10,62 @@ use App\Http\Requests\StoreEneagramaRequest;
 use App\Http\Requests\UpdateEneagramaRequest;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Exception;
 
 class EneagramaController extends Controller
 {
-    public function crearDesdeBase(int $userId, int $baseId = 1)
+    // /**
+    //  * Show the form for creating a new resource.
+    //  */
+    // public function create()
+    // {
+    //     $baseId = 1; //harcode
+    //     $base = EneagramaBase::with('preguntas')->findOrFail($baseId);
+    //     return view('eneagramas.create', compact($base)); //llevar base a la vista
+    // }
+
+
+    /**
+     * @param $baseId *HARCODE* identificador de base ya que no hay ABM de bases
+     */
+
+    public function crearDesdeBase(int $baseId = 1)
     {
-        return DB::transaction(function () use ($userId, $baseId) {
-            // 1. Obtener la base con sus preguntas
-            $base = EneagramaBase::with('preguntas')->findOrFail($baseId);
+        try {
+            $user = auth()->user();
+            $userId = $user->id;
 
-            // 2. Crear cuestionario para el usuario
-            $cuestionario = EneagramaUsuario::create([
-                'user_id' => $userId,
-                'base_id' => $base->id,
-                'nombre' => 'Mi cuestionario Eneagrama',
-            ]);
+            return DB::transaction(function () use ($userId, $baseId) {
+                $base = EneagramaBase::with('preguntas')->findOrFail($baseId);
 
-            // 3. Clonar preguntas
-            foreach ($base->preguntas as $pregunta) {
-                EneagramaUsuarioPregunta::create([
-                    'eneagrama_usuario_id' => $cuestionario->id,
-                    'pregunta' => $pregunta->pregunta,
-                    'tipo' => $pregunta->tipo,
+                // 2. Crear cuestionario para el usuario
+
+                $cuestionario = EneagramaUsuario::create([
+                    'user_id' => $userId,
+                    'base_id' => $base->id,
                 ]);
-            }
 
-            return $cuestionario;
-        });
+                // 3. Clonar preguntas
+                foreach ($base->preguntas as $pregunta) {
+                    EneagramaUsuarioPregunta::create([
+                        'eneagrama_usuario_id' => $cuestionario->id,
+                        'pregunta' => $pregunta->pregunta,
+                        'valor' => $pregunta->valor,
+                    ]);
+                }
+            });
+
+        } catch (ModelNotFoundException $e) {
+            return redirect()->back()->with('error', 'No se encontró la base especificada.');
+        } catch (Exception $e) {
+            // Error general en la transacción
+            return redirect()->back()
+            ->with('error', 'Ocurrió un error al crear el cuestionario: ' . $e->getMessage());
+        }
+        
     }
+
 
     /**
      * Display a listing of the resource.
@@ -47,13 +75,7 @@ class EneagramaController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+    
 
     /**
      * Store a newly created resource in storage.
@@ -79,7 +101,12 @@ class EneagramaController extends Controller
     public function form()
     {
         $user = auth()->user();
-        return view('eneagramas.form', compact('user'));
+        $userId = $user->id;
+        $UsuarioConEneagrama = User::with('eneagrama')
+            ->where('id', $userId)
+            ->whereHas('eneagrama') // filtra solo si la relación existe
+            ->first();        
+        return view('eneagramas.form', compact('UsuarioConEneagrama'));
     }
 
     /**

@@ -26,6 +26,9 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('eneagrama/formulario', [EneagramaController::class, 'form'])->name('eneagrama.formulario');
     Route::get('eneagrama/listado',[EneagramaController::class,'list'])->name('eneagrama.listado');
+    
+    Route::get('eneagrama/crear',[EneagramaController::class,'crearDesdeBase'])->name('eneagrama.crear');
+    
     Route::get('eneagrama/pagina',[EneagramaController::class,'pagina'])->name('eneagrama.pagina');
 
     Route::get('eneagrama/{alias}/generador-eneagrama',[EneagramaController::class,'generador'])->name('eneagrama.generador-eneagrama');
