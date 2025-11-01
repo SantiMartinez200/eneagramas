@@ -18,7 +18,8 @@ return new class extends Migration
         $table->foreignId('user_id')
               ->constrained('users')
               ->restrictOnDelete();
-
+        $table->foreignId('base_id')
+            ->constrianed('eneagramas_base');
         $table->timestamps();
     });
 }

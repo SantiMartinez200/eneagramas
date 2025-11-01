@@ -7,6 +7,7 @@ use App\Livewire\Settings\TwoFactor;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\EneagramaController;
+use App\Http\Controllers\EneagramaPreguntaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -26,16 +27,13 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('eneagrama/formulario', [EneagramaController::class, 'form'])->name('eneagrama.formulario');
     Route::get('eneagrama/listado',[EneagramaController::class,'list'])->name('eneagrama.listado');
-    
     Route::get('eneagrama/crear',[EneagramaController::class,'crearDesdeBase'])->name('eneagrama.crear');
-    
     Route::get('eneagrama/pagina',[EneagramaController::class,'pagina'])->name('eneagrama.pagina');
-
     Route::get('eneagrama/{alias}/generador-eneagrama',[EneagramaController::class,'generador'])->name('eneagrama.generador-eneagrama');
-
-
     Route::resource('eneagrama', EneagramaController::class);
     Route::post('eneagrama.upload',[EneagramaController::class,'upload'])->name('eneagrama.upload');
+
+    Route::get('pregunta/{pregunta}/editar', [EneagramaPreguntaController::class,'editar'])->name('pregunta.editar');
 
     //utiliza esto de ejemplo para el posterior con las rutas para cada user, duhhh
     //Route::get('/eneagrama/form/{user}', [EneagramaController::class, 'form'])->name('eneagrama.form');

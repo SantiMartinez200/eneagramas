@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class EneagramaController extends Controller
 {
@@ -36,9 +37,9 @@ class EneagramaController extends Controller
             $user = auth()->user();
             $userId = $user->id;
 
-            return DB::transaction(function () use ($userId, $baseId) {
+            $resultado = DB::transaction(function () use ($userId, $baseId) {
                 $base = EneagramaBase::with('preguntas')->findOrFail($baseId);
-
+                //dd($base);
                 // 2. Crear cuestionario para el usuario
 
                 $cuestionario = EneagramaUsuario::create([
@@ -54,8 +55,11 @@ class EneagramaController extends Controller
                         'valor' => $pregunta->valor,
                     ]);
                 }
+                 
             });
 
+            return redirect()->back()
+            ->with('success', 'Eneagrama creado exitosamente.'); 
         } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('error', 'No se encontró la base especificada.');
         } catch (Exception $e) {
@@ -63,7 +67,8 @@ class EneagramaController extends Controller
             return redirect()->back()
             ->with('error', 'Ocurrió un error al crear el cuestionario: ' . $e->getMessage());
         }
-        
+        Log::info('Resultado transacción Eneagrama', ['resultado' => $resultado]);
+
     }
 
 
@@ -102,7 +107,7 @@ class EneagramaController extends Controller
     {
         $user = auth()->user();
         $userId = $user->id;
-        $UsuarioConEneagrama = User::with('eneagrama')
+        $UsuarioConEneagrama = User::with('eneagrama.preguntas') //Encadenar relaciones de "tiene eneagrama" y "este eneagrama tiene preguntas"
             ->where('id', $userId)
             ->whereHas('eneagrama') // filtra solo si la relación existe
             ->first();        
