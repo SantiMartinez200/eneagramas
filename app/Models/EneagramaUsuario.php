@@ -14,6 +14,16 @@ class EneagramaUsuario extends Model
         return $this->hasMany(EneagramaUsuarioPregunta::class, 'eneagrama_usuario_id');
     }
 
+    public function frases()
+    {
+        return $this->hasMany(EneagramaUsuarioFrase::class, 'eneagrama_usuario_id');
+    }
+
+    public function verbos()
+    {
+        return $this->hasMany(EneagramaUsuarioVerbo::class, 'eneagrama_usuario_id');
+    }
+
     public function base()
     {
         return $this->belongsTo(EneagramaBase::class, 'base_id');

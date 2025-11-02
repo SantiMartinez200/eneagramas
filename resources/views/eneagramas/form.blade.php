@@ -1,6 +1,6 @@
 <x-layouts.app :title="__('Formulario')">
     <div class="flex flex-1 flex-col h-full w-full rounded-xl">
-        <div class="flex flex-col gap-6 rounded-xl shadow-sm">
+        <div class="flex flex-col gap-6 rounded-xl ">
 
             <!-- Encabezado principal -->
             <div class="flex flex-col gap-2 p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
@@ -74,7 +74,7 @@
                     </div>
 
                     <!-- Sección de Frases y Verbos -->
-                    <div class="space-y-8 rounded-xl bg-white dark:bg-neutral-900 shadow-sm">
+                    <div class="space-y-8 rounded-xl bg-white dark:bg-neutral-900">
                         <!-- Instrucciones -->
                         <div class="text-gray-700 dark:text-gray-300 space-y-2">
                             <p>Estas son las frases y verbos disponibles en tu eneagrama. Puedes agregarlas, quitarlas o modificarlas.</p>
@@ -104,24 +104,14 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    @foreach ([
-                                        'Evito la debilidad, porque no hay nada imposible para mi.',
-                                        'Evito el fracaso a toda costa, porque creo que siempre se puede hacer algo más.',
-                                        'Evito la confusión, porque necesito tener las ideas claras.',
-                                        'Evito el dolor, porque veo lo positivo de la vida.',
-                                        'Evito el conflicto, porque trato de comprender y mediar en cualquier situación.',
-                                        'Evito la mediocridad, porque no quiero ser uno más.',
-                                        'Evito la cólera y el enojo, porque no es correcto irritarse.',
-                                        'Evito cualquier tipo de irresponsabilidad.',
-                                        'Evito reconocer y atender mis propias necesidades, priorizando las de los otros.',
-                                    ] as $index => $frase)
+                                    @foreach ($UsuarioConEneagrama->eneagrama->frases as $i => $frase)
                                         <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/70 transition-colors">
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $index + 1 }}</td>
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $frase }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $i + 1 }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $frase->frase }}</td>
                                             <td class="px-4 py-3 text-right">
-                                                <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                                    Editar
-                                                </button>
+                                            <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                                                Editar
+                                            </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -140,19 +130,6 @@
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800 bg-white dark:bg-neutral-900">
-                                    @php
-                                        $verbos = [
-                                            ['verbo' => 'Cooperar'],
-                                            ['verbo' => 'Crear'],
-                                            ['verbo' => 'Alegrar'],
-                                            ['verbo' => 'Ayudar'],
-                                            ['verbo' => 'Liderar'],
-                                            ['verbo' => 'Observar'],
-                                            ['verbo' => 'Organizar'],
-                                            ['verbo' => 'Realizar'],
-                                            ['verbo' => 'Serenar'],
-                                        ];
-                                    @endphp
                                     <tr class="bg-neutral-50 dark:bg-neutral-800/60">
                                         <td class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">+</td>
                                         <td class="px-4 py-3">
@@ -167,10 +144,10 @@
                                             </button>
                                         </td>
                                     </tr>
-                                    @foreach ($verbos as $index => $item)
+                                    @foreach ($UsuarioConEneagrama->eneagrama->verbos as $i => $verbo)
                                         <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/70 transition-colors">
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $index + 1 }}</td>
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $item['verbo'] }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $i + 1 }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $verbo->verbo }}</td>
 
                                             <td class="px-4 py-3 text-right">
                                                 <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
@@ -184,11 +161,40 @@
                         </div>
                                     
                         <!-- Botón Guardar -->
-                        <div class="flex items-center justify-end pt-6 border-t border-neutral-200 dark:border-neutral-800">
+                        <!-- <div class="flex items-center justify-end pt-6 border-t border-neutral-200 dark:border-neutral-800">
                             <button type="submit"
                                 class="px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 transition">
                                 Guardar
                             </button>
+                        </div> -->
+                    </div>
+                @else
+                    {{-- Card de alerta si aún no hay eneagrama --}}
+                    <p class="text-gray-600"></p>
+                    <div class="relative h-full flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-700 p-8 text-center bg-white dark:bg-neutral-900">
+                        <x-placeholder-pattern class="absolute inset-0 size-full stroke-gray-900/20 dark:stroke-neutral-100/20" />
+
+                        <div class="relative z-10 flex flex-col items-center gap-3">
+                            <!-- Ícono de cruz -->
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+
+                            <!-- Mensaje -->
+                            <p class="text-lg font-medium text-gray-800 dark:text-gray-100">
+                                Aún no creaste el eneagrama
+                            </p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                Haz click en el botón de abajo para crearlo.
+                            </p>
+
+                            <!-- Botón -->
+                            <a href="{{ route('eneagrama.crear') }}"
+                               class="mt-2 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-all dark:bg-blue-500 dark:hover:bg-blue-600">
+                                Crear Eneagrama
+                            </a>
                         </div>
                     </div>
                 @endif

@@ -8,6 +8,8 @@ use App\Models\EneagramaUsuario;
 use App\Models\EneagramaUsuarioPregunta;
 use App\Http\Requests\StoreEneagramaRequest;
 use App\Http\Requests\UpdateEneagramaRequest;
+use App\Models\EneagramaUsuarioFrase;
+use App\Models\EneagramaUsuarioVerbo;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -28,8 +30,8 @@ class EneagramaController extends Controller
 
 
     /**
-     * @param $baseId *HARCODE* identificador de base ya que no hay ABM de bases
-     */
+    * @param $baseId *HARCODE* identificador de base ya que no hay ABM de bases
+    */
 
     public function crearDesdeBase(int $baseId = 1)
     {
@@ -38,10 +40,10 @@ class EneagramaController extends Controller
             $userId = $user->id;
 
             $resultado = DB::transaction(function () use ($userId, $baseId) {
-                $base = EneagramaBase::with('preguntas')->findOrFail($baseId);
-                //dd($base);
-                // 2. Crear cuestionario para el usuario
-
+                // 1. se obtiene la base completa
+                $base = EneagramaBase::with('preguntas','frases','verbos')->findOrFail($baseId);
+                
+                // 2. crear el eneagrama de base primero 'cuz of relations
                 $cuestionario = EneagramaUsuario::create([
                     'user_id' => $userId,
                     'base_id' => $base->id,
@@ -53,6 +55,22 @@ class EneagramaController extends Controller
                         'eneagrama_usuario_id' => $cuestionario->id,
                         'pregunta' => $pregunta->pregunta,
                         'valor' => $pregunta->valor,
+                    ]);
+                }
+
+                // 4. Clonar Frases
+                foreach ($base->frases as $frase) {
+                    EneagramaUsuarioFrase::create([
+                        'eneagrama_usuario_id' => $cuestionario->id,
+                        'frase' => $frase->frase,
+                    ]);
+                }
+
+                // 4. Clonar Verbos
+                foreach ($base->verbos as $verbo) {
+                    EneagramaUsuarioVerbo::create([
+                        'eneagrama_usuario_id' => $cuestionario->id,
+                        'verbo' => $verbo->verbo,
                     ]);
                 }
                  
@@ -107,10 +125,15 @@ class EneagramaController extends Controller
     {
         $user = auth()->user();
         $userId = $user->id;
-        $UsuarioConEneagrama = User::with('eneagrama.preguntas') //Encadenar relaciones de "tiene eneagrama" y "este eneagrama tiene preguntas"
-            ->where('id', $userId)
-            ->whereHas('eneagrama') // filtra solo si la relación existe
-            ->first();        
+        $UsuarioConEneagrama = User::with([
+            'eneagrama.preguntas',
+            'eneagrama.frases',
+            'eneagrama.verbos'
+        ])
+        ->where('id', $userId)
+        ->whereHas('eneagrama')
+        ->first();
+        
         return view('eneagramas.form', compact('UsuarioConEneagrama'));
     }
 

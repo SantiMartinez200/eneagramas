@@ -9,5 +9,8 @@ class EneagramaVerbo extends Model
    protected $table = 'eneagramas_verbos';
    protected $fillable = ['eneagramas_base_id','verbo'];
 
-
+   public function base()
+    {
+        return $this->belongsTo(EneagramaBase::class, 'eneagramas_base_id');
+    }
 }

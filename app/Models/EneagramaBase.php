@@ -13,4 +13,14 @@ class EneagramaBase extends Model
     {
         return $this->hasMany(EneagramaPregunta::class, 'eneagramas_base_id');
     }
+
+    public function frases()
+    {
+        return $this->hasMany(EneagramaFrase::class, 'eneagramas_base_id');
+    }
+    
+    public function verbos()
+    {
+        return $this->hasMany(EneagramaVerbo::class, 'eneagramas_base_id');
+    }
 }

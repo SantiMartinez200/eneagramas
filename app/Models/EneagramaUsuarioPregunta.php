@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class EneagramaUsuarioPregunta extends Model
 {
-    protected $fillable = ['eneagrama_usuario_id', 'pregunta', 'valor'];
     protected $table = 'eneagramas_preguntas_usuario';
+    protected $fillable = ['eneagrama_usuario_id', 'pregunta', 'valor'];
 
     public function cuestionario()
     {

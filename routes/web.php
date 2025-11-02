@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('eneagrama/crear',[EneagramaController::class,'crearDesdeBase'])->name('eneagrama.crear');
     Route::get('eneagrama/pagina',[EneagramaController::class,'pagina'])->name('eneagrama.pagina');
     Route::get('eneagrama/{alias}/generador-eneagrama',[EneagramaController::class,'generador'])->name('eneagrama.generador-eneagrama');
-    Route::resource('eneagrama', EneagramaController::class);
+    //Route::resource('eneagrama', EneagramaController::class);
     Route::post('eneagrama.upload',[EneagramaController::class,'upload'])->name('eneagrama.upload');
 
     Route::get('pregunta/{pregunta}/editar', [EneagramaPreguntaController::class,'editar'])->name('pregunta.editar');
