@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\EneagramaController;
 use App\Http\Controllers\EneagramaPreguntaController;
+use App\Http\Controllers\EneagramaUsuarioPreguntaController;
+use App\Models\EneagramaUsuarioPregunta;
 
 Route::get('/', function () {
     return view('welcome');
@@ -33,10 +35,13 @@ Route::middleware(['auth'])->group(function () {
     //Route::resource('eneagrama', EneagramaController::class);
     Route::post('eneagrama.upload',[EneagramaController::class,'upload'])->name('eneagrama.upload');
 
-    Route::get('pregunta/{pregunta}/editar', [EneagramaPreguntaController::class,'editar'])->name('pregunta.editar');
+
+
+    Route::get('pregunta/{pregunta}/editar', [EneagramaUsuarioPreguntaController::class,'edit'])->name('pregunta.editar');
+    Route::post('pregunta/crear', [EneagramaUsuarioPreguntaController::class,'store'])->name('pregunta.crear');
 
     //utiliza esto de ejemplo para el posterior con las rutas para cada user, duhhh
-    //Route::get('/eneagrama/form/{user}', [EneagramaController::class, 'form'])->name('eneagrama.form');
+    //Route::get('/eneagrama/{user}/generador-eneagrama', [EneagramaController::class, 'form'])->name('eneagrama.form');
 
     Route::get('settings/two-factor', TwoFactor::class) // usuario que completa un eneagrama
         ->middleware(

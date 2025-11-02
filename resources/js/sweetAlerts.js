@@ -7,6 +7,7 @@ window.fireSweetAlert2Simple = function(tipo, titulo, mensaje, timer = null, toa
         text: mensaje,
         timer: timer,
         toast: toast,
+        position: !toast ? 'center' : 'top-end', 
         showConfirmButton: !toast
     });
 }
