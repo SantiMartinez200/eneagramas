@@ -117,6 +117,29 @@ class EneagramaController extends Controller
     }
 
     /**
+     * Misma función que form solo que trae datos para reloadListado() del front para las preguntas.
+     * Consulta más liviana.
+     */
+    public function listPreguntas(){
+        $user = auth()->user();
+        $userId = $user->id;
+        $UsuarioConEneagrama = User::with([
+            'eneagrama' => function($q) {
+                $q->with(['preguntas' => function($q2) {
+                    $q2->orderBy('created_at', 'DESC');
+                }]);
+            },
+        ])
+        ->where('id', $userId)
+        ->whereHas('eneagrama')
+        ->orderBy('created_at','DESC')
+        ->first();
+
+       return response()->json($UsuarioConEneagrama);
+
+    }
+
+    /**
      * Mostrar el eneagrama que tiene asignado el usuario.
      * Se pasa como parámetro el usuario logeado.
      * Retorna una vista con los datos del eneagrama o incita a crear un eneagrama caso contrario.
@@ -126,12 +149,18 @@ class EneagramaController extends Controller
         $user = auth()->user();
         $userId = $user->id;
         $UsuarioConEneagrama = User::with([
-            'eneagrama.preguntas',
+            'eneagrama' => function($q) {
+                $q->with(['preguntas' => function($q2) {
+                    $q2->orderBy('created_at', 'DESC');
+                }]);
+            },
             'eneagrama.frases',
             'eneagrama.verbos'
         ])
         ->where('id', $userId)
         ->whereHas('eneagrama')
+        ->orderBy('created_at','DESC')
+
         ->first();
         
         return view('eneagramas.form', compact('UsuarioConEneagrama'));
