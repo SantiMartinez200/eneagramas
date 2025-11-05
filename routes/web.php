@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use App\Http\Controllers\EneagramaController;
 use App\Http\Controllers\EneagramaPreguntaController;
+use App\Http\Controllers\EneagramaUsuarioFraseController;
 use App\Http\Controllers\EneagramaUsuarioPreguntaController;
-use App\Models\EneagramaUsuarioPregunta;
+use App\Http\Controllers\EneagramaUsuarioVerboController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,7 +30,11 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('eneagrama/formulario', [EneagramaController::class, 'form'])->name('eneagrama.formulario');
     Route::get('eneagrama/listado',[EneagramaController::class,'list'])->name('eneagrama.listado');
-    Route::get('eneagrama/listado/reload', [EneagramaController::class,'listPreguntas'])->name('eneagrama.listado.relaod');
+
+    Route::get('eneagrama/preguntas/reload', [EneagramaController::class,'listPreguntas'])->name('eneagrama.listado.relaod');
+    Route::get('eneagrama/frases/reload', [EneagramaController::class,'listFrases'])->name('eneagrama.listado.relaod');
+    Route::get('eneagrama/verbos/reload', [EneagramaController::class,'listVerbos'])->name('eneagrama.listado.relaod');
+
     Route::get('eneagrama/crear',[EneagramaController::class,'crearDesdeBase'])->name('eneagrama.crear');
     Route::get('eneagrama/pagina',[EneagramaController::class,'pagina'])->name('eneagrama.pagina');
     Route::get('eneagrama/{alias}/generador-eneagrama',[EneagramaController::class,'generador'])->name('eneagrama.generador-eneagrama');
@@ -40,6 +45,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('pregunta/{pregunta}/editar', [EneagramaUsuarioPreguntaController::class,'edit'])->name('pregunta.editar');
     Route::post('pregunta/crear', [EneagramaUsuarioPreguntaController::class,'store'])->name('pregunta.crear');
+
+    Route::get('pregunta/{frase}/editar', [EneagramaUsuarioFraseController::class,'edit'])->name('frase.editar');
+    Route::post('frase/crear', [EneagramaUsuarioFraseController::class,'store'])->name('frase.crear');
+
+    Route::get('pregunta/{verbo}/editar', [EneagramaUsuarioVerboController::class,'edit'])->name('verbo.editar');
+    Route::post('verbo/crear', [EneagramaUsuarioVerboController::class,'store'])->name('verbo.crear');
 
     //utiliza esto de ejemplo para el posterior con las rutas para cada user, duhhh
     //Route::get('/eneagrama/{user}/generador-eneagrama', [EneagramaController::class, 'form'])->name('eneagrama.form');

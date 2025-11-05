@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class EneagramaController extends Controller
 {
@@ -139,33 +140,91 @@ class EneagramaController extends Controller
 
     }
 
+    public function listFrases(){
+        $user = auth()->user();
+        $userId = $user->id;
+        $UsuarioConEneagrama = User::with([
+            'eneagrama' => function($q) {
+                $q->with(['frases' => function($q2) {
+                    $q2->orderBy('created_at', 'DESC');
+                }]);
+            },
+        ])
+        ->where('id', $userId)
+        ->whereHas('eneagrama')
+        ->orderBy('created_at','DESC')
+        ->first();
+
+       return response()->json($UsuarioConEneagrama);
+
+    }
+
+    public function listVerbos(){
+        $user = auth()->user();
+        $userId = $user->id;
+        $UsuarioConEneagrama = User::with([
+            'eneagrama' => function($q) {
+                $q->with(['verbos' => function($q2) {
+                    $q2->orderBy('created_at', 'DESC');
+                }]);
+            },
+        ])
+        ->where('id', $userId)
+        ->whereHas('eneagrama')
+        ->orderBy('created_at','DESC')
+        ->first();
+
+       return response()->json($UsuarioConEneagrama);
+
+    }
+
     /**
      * Mostrar el eneagrama que tiene asignado el usuario.
      * Se pasa como parámetro el usuario logeado.
      * Retorna una vista con los datos del eneagrama o incita a crear un eneagrama caso contrario.
      */
-    public function form()
+    public function form(Request $request)
     {
         $user = auth()->user();
-        $userId = $user->id;
-        $UsuarioConEneagrama = User::with([
-            'eneagrama' => function($q) {
-                $q->with(['preguntas' => function($q2) {
-                    $q2->orderBy('created_at', 'DESC');
-                }]);
-            },
-            'eneagrama.frases',
-            'eneagrama.verbos'
-        ])
-        ->where('id', $userId)
-        ->whereHas('eneagrama')
-        ->orderBy('created_at','DESC')
+        $eneagrama = $user->eneagrama;
+        $preguntas = $eneagrama ? $eneagrama->preguntas()->paginate(1, ['*'], 'page_preguntas') : collect();
+        $frases    = $eneagrama ? $eneagrama->frases()->paginate(1, ['*'], 'page_frases') : collect();
+        $verbos    = $eneagrama ? $eneagrama->verbos()->paginate(1, ['*'], 'page_verbos') : collect();
+if ($request->ajax()) {
+    try {
+        $tabla = $request->get('tabla');
 
-        ->first();
-        
-        return view('eneagramas.form', compact('UsuarioConEneagrama'));
+        switch ($tabla) {
+            case 'frases':
+                return view('eneagramas.partials.frases-table', compact('frases'))->render();
+
+            case 'verbos':
+                return view('eneagramas.partials.verbos-table', compact('verbos'))->render();
+
+            default:
+                return view('eneagramas.partials.preguntas-table', compact('preguntas'))->render();
+        }
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => true,
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ], 500);
     }
+}
+        if ($request->ajax()) {
+            if ($request->has('tabla') && $request->tabla === 'frases') {
+                return view('partials.frases-table', compact('frases'))->render();
+            } elseif ($request->has('tabla') && $request->tabla === 'verbos') {
+                return view('partials.verbos-table', compact('verbos'))->render();
+            } else {
+                return view('partials.preguntas-table', compact('preguntas'))->render();
+            }
+        }
 
+        return view('eneagramas.form', compact('user','eneagrama','preguntas', 'frases', 'verbos'));
+    }
     /**
      * Display the specified resource.
      */
