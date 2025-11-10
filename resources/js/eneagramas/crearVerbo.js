@@ -92,7 +92,12 @@ const crearVerbo = {
 
             if (data.success) {
                 fireSweetAlert2Simple('success', 'Éxito', 'El verbo fue creado correctamente', 3000, true);
-                await this.reloadListado();
+                // Volver a la página 1 del listado paginado si existe
+                if (typeof window.goToFirstPage === 'function') {
+                    await window.goToFirstPage('verbos');
+                } else {
+                    await this.reloadListado();
+                }
                 
                 const input = document.querySelector('input[name="nuevo_verbo"]');
                 if (input) input.value = '';

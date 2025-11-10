@@ -57,6 +57,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('pregunta/{verbo}/editar', [EneagramaUsuarioVerboController::class,'edit'])->name('verbo.editar');
     Route::post('verbo/crear', [EneagramaUsuarioVerboController::class,'store'])->name('verbo.crear');
 
+
+    Route::get('/tu-pagina', [EneagramaController::class, 'pagina'])->name('eneagrama.pagina');
+    Route::get('tu-pagina/visualizar', [EneagramaController::class, 'preview'])->name('tu.pagina.preview');
+    Route::post('tu-pagina/actualizar', [EneagramaController::class, 'update'])->name('tu.pagina.update');
     //utiliza esto de ejemplo para el posterior con las rutas para cada user, duhhh
     //Route::get('/eneagrama/{user}/generador-eneagrama', [EneagramaController::class, 'form'])->name('eneagrama.form');
 

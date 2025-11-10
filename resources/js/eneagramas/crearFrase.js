@@ -92,7 +92,12 @@ const crearFrase = {
 
             if (data.success) {
                 fireSweetAlert2Simple('success', 'Éxito', 'La frase fue creada correctamente', 3000, true);
-                await this.reloadListado();
+                // Volver a la página 1 del listado paginado si existe
+                if (typeof window.goToFirstPage === 'function') {
+                    await window.goToFirstPage('frases');
+                } else {
+                    await this.reloadListado();
+                }
                 
                 const input = document.querySelector('input[name="nueva_frase"]');
                 if (input) input.value = '';

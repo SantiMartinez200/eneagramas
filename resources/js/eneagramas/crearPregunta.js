@@ -100,12 +100,17 @@ const crearPregunta = {
 
             if (data.success) {
                 fireSweetAlert2Simple('success', 'Éxito', 'La pregunta fue creada correctamente', 3000, true);
-                await this.reloadListado();
+                // Volver a la página 1 del listado paginado si existe
+                if (typeof window.goToFirstPage === 'function') {
+                    await window.goToFirstPage('preguntas');
+                } else {
+                    await this.reloadListado();
+                }
                 
                 const input = document.querySelector('input[name="nueva_pregunta"]');
                 const select = document.querySelector('select[name="valor"]');
                 if (input) input.value = '';
-                if (select) select.value = '';
+                if (select) select.value = '1';
             } else {
                 fireSweetAlert2Simple('error', 'Error', data.message, 3000, true);
             }

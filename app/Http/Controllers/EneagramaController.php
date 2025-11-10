@@ -186,9 +186,9 @@ public function listVerbos() {
         $user = auth()->user();
         $eneagrama = $user->eneagrama;
 
-        $preguntas = $eneagrama ? $eneagrama->preguntas()->paginate(10, ['*'], 'page_preguntas') : collect();
-        $frases    = $eneagrama ? $eneagrama->frases()->paginate(10, ['*'], 'page_frases') : collect();
-        $verbos    = $eneagrama ? $eneagrama->verbos()->paginate(10, ['*'], 'page_verbos') : collect();
+        $preguntas = $eneagrama ? $eneagrama->preguntas()->orderBy('created_at', 'desc')->paginate(10, ['*'], 'page_preguntas') : collect();
+        $frases    = $eneagrama ? $eneagrama->frases()->orderBy('created_at', 'desc')->paginate(10, ['*'], 'page_frases') : collect();
+        $verbos    = $eneagrama ? $eneagrama->verbos()->orderBy('created_at', 'desc')->paginate(10, ['*'], 'page_verbos') : collect();
 
         // Si la request viene por AJAX (cambio de tabla dinámico)
         if ($request->ajax()) {
@@ -215,6 +215,14 @@ public function listVerbos() {
             default:
                 return view('eneagramas.preguntasView', compact('user', 'eneagrama', 'preguntas'));
         }
+    }
+
+    /**
+     * Traer la vista para trabajar con la página del usuario.
+     */
+    public function pagina()
+    {
+        return view('eneagramas.paginaConstructor');
     }
     /**
      * Display the specified resource.

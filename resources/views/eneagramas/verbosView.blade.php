@@ -3,11 +3,10 @@
     <div class="flex flex-1 flex-col h-full w-full rounded-xl">
         <div class="flex flex-col gap-6 rounded-xl ">
 
-            <!-- Encabezado principal -->
-            <div class="flex flex-col gap-2 p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
-                <h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">Formulario</h1>
+        <div class="flex flex-col gap-2 p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
+                <h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">Formulario de verbos</h1>
                 <p class="text-gray-600 dark:text-gray-400">
-                    Estos son los verbos disponibles para los usuarios.
+                    Este es el listado de verbos disponibles en tu eneagrama.
                 </p>
             </div>
 
@@ -15,6 +14,9 @@
             <div class="p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
                 @if ($user && $eneagrama && $verbos->isNotEmpty())
                     <input type="hidden" name="eneagrama_usuario_id" value="{{ $eneagrama->id }}">
+                    <p class="mb-4 text-gray-700 dark:text-gray-300">
+                        Por favor tómate tu tiempo para revisar los verbos.
+                    </p>
                     <div id="verbos-wrapper" class="partial-wrapper">
                         @include('eneagramas.partials.verbos-table')
                     </div>

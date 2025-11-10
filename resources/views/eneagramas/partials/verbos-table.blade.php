@@ -1,5 +1,11 @@
                     <div class="table-wrapper">
                     <div class="overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-800 mb-8">
+                        <div class="space-y-8 rounded-xl bg-white dark:bg-neutral-900">
+                            <!-- Instrucciones -->
+                            <div class="text-gray-700 dark:text-gray-300 space-y-2">
+                                <p>Estos son los verbos disponibles en tu eneagrama. Puedes agregar, quitar o modificar.</p>
+                            </div>
+                        </div>
                         <table class="tVerbos min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead class="bg-neutral-50 dark:bg-neutral-800/60">
                                     <tr>
