@@ -5,6 +5,16 @@
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+           @php
+                $user = auth()->user();
+
+                $eneagrama = $user?->eneagrama;
+                $preguntas = $eneagrama?->preguntas ?? collect();
+                $frases    = $eneagrama?->frases ?? collect();
+                $verbos    = $eneagrama?->verbos ?? collect();
+
+                $tieneEneagrama = $user && $eneagrama && $preguntas->isNotEmpty();
+            @endphp
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             <a href="{{ route('dashboard') }}" class="me-5 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
@@ -15,7 +25,79 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Principal') }}</flux:navlist.item>
                     <flux:navlist.item icon="clipboard-document-check" :href="route('eneagrama.listado')" :current="request()->routeIs('eneagrama.listado')" wire:navigate>{{ __('Eneagramas') }}</flux:navlist.item>
-                    <flux:navlist.item icon="pencil-square" :href="route('eneagrama.formulario')" :current="request()->routeIs('eneagrama.formulario')" wire:navigate>{{ __('Formulario') }}</flux:navlist.item>
+                    <!-- Parent: Formulario -->
+
+                   @if ($tieneEneagrama)
+                    <!-- Bloque con submenú (Formulario con hijos) -->
+                    @if ($tieneEneagrama)
+    <!-- Bloque con submenú -->
+    <div x-data="{ open: {{ request()->routeIs('eneagramas.form') ? 'true' : 'false' }} }" class="space-y-1">
+        <button
+            @click="open = !open"
+            class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800 rounded transition"
+        >
+            <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                <x-flux::icon name="pencil-square" class="w-5 h-5" />
+                <span>{{ __('Formulario') }}</span>
+            </div>
+            <svg x-bind:class="{ 'rotate-90': open }" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <div x-show="open" x-transition class="pl-9 space-y-1 mt-1">
+            <flux:navlist.item
+                icon="question-mark-circle"
+                :href="route('eneagramas.form', 'preguntas')"
+                :current="request()->routeIs('eneagramas.form') && request()->route('seccion') === 'preguntas'"
+                wire:navigate
+            >
+                {{ __('Preguntas') }}
+            </flux:navlist.item>
+
+            <flux:navlist.item
+                icon="chat-bubble-oval-left"
+                :href="route('eneagramas.form', 'frases')"
+                :current="request()->routeIs('eneagramas.form') && request()->route('seccion') === 'frases'"
+                wire:navigate
+            >
+                {{ __('Frases') }}
+            </flux:navlist.item>
+
+            <flux:navlist.item
+                icon="language"
+                :href="route('eneagramas.form', 'verbos')"
+                :current="request()->routeIs('eneagramas.form') && request()->route('seccion') === 'verbos'"
+                wire:navigate
+            >
+                {{ __('Verbos') }}
+            </flux:navlist.item>
+        </div>
+    </div>
+@else
+    <!-- Solo el acceso al formulario simple -->
+    <flux:navlist.item
+        icon="pencil-square"
+        :href="route('eneagrama.formulario')"
+        :current="request()->routeIs('eneagrama.formulario')"
+        wire:navigate
+    >
+        {{ __('Formulario') }}
+    </flux:navlist.item>
+@endif
+
+                    @else
+                        <!-- Solo el acceso al formulario simple -->
+                        <flux:navlist.item
+                            icon="pencil-square"
+                            :href="route('eneagrama.formulario')"
+                            :current="request()->routeIs('eneagrama.formulario')"
+                            wire:navigate
+                        >
+                            {{ __('Formulario') }}
+                        </flux:navlist.item>
+                    @endif
                     <flux:navlist.item icon="link" :href="route('eneagrama.pagina')" :current="request()->routeIs('eneagrama.pagina')" wire:navigate>{{ __('Tu página') }}</flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>

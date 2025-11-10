@@ -31,7 +31,7 @@
                                         </tr>
                                         @foreach ($frases as $i => $frase)
                                             <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/70 transition-colors">
-                                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $i + 1 }}</td>
+                                                <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $frases->firstItem() + $i }}</td>
                                                 <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $frase->frase }}</td>
                                                 <td class="px-4 py-3 text-right">
                                                 <button class="text-sm font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">

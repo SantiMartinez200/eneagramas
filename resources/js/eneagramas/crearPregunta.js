@@ -1,30 +1,9 @@
-var input;
-var eneagrama;
-var select;
-var selectValue;
-
-
 const crearPregunta = {
-    init() {
-        //delegacion de eventos en click 
-        document.body.addEventListener('click', (e) => {
-            if (e.target.matches('.btn-crear')) {
-                input = document.querySelector('input[name="nueva_pregunta"]');
-                const valor = input ? input.value : '';
-                eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]').value;
-                select = document.querySelector('select[name="valor"]');
-                selectValue = document.querySelector('select[name="valor"]').value;
-
-                this.crearRegistro(valor,eneagrama,selectValue);
-            }
-        });
-    },
     async reloadListado() {
         const overlay = document.getElementById('overlay-preguntas');
 
         try {
-            // Mostrar overlay
-            overlay.classList.remove('hidden');
+            overlay?.classList.remove('hidden');
 
             const response = await fetch('/eneagrama/preguntas/reload', {
                 method: 'GET',
@@ -41,9 +20,12 @@ const crearPregunta = {
 
             const data = await response.json();
             const tbody = document.querySelector('table tbody');
-            const firstRow = tbody.querySelector('tr'); // fila del input
+            
+            if (!tbody) return;
+            
+            const firstRow = tbody.querySelector('tr');
             tbody.innerHTML = '';
-            tbody.appendChild(firstRow);
+            if (firstRow) tbody.appendChild(firstRow);
 
             data.eneagrama.preguntas.forEach((pregunta, i) => {
                 const tr = document.createElement('tr');
@@ -73,23 +55,29 @@ const crearPregunta = {
             console.error(error);
             fireSweetAlert2Simple('error', 'Error', 'No fue posible cargar el listado', 3000, true);
         } finally {
-            // Ocultar overlay
-            overlay.classList.add('hidden');
+            overlay?.classList.add('hidden');
         }
     },
-    //el input
-     async crearRegistro(valor,eneagrama,selectValue) {
+
+    async crearRegistro(valor, eneagrama, selectValue) {
+        console.log('📝 Intentando crear pregunta:', { valor, eneagrama, selectValue });
+
         if (isNaN(eneagrama) || isNaN(selectValue)) {
             fireSweetAlert2Simple('error', 'Error', 'No fue posible realizar la operación', 3000, true);
             console.error('Falta identificador de eneagrama o algún valor no es numérico.');
             return;
         }
 
-        if (!valor || !select.value) {
-            //tratar de disparar el error del backend
-            fireSweetAlert2Simple('error', 'No se pudo crear la pregunta', 'El campo está vacío', 3000, true);
-            errorInput(input,true,3000,true);
-            errorInput(select,true,3000,true);
+        if (!valor || !selectValue) {
+            const input = document.querySelector('input[name="nueva_pregunta"]');
+            const select = document.querySelector('select[name="valor"]');
+            
+            fireSweetAlert2Simple('error', 'No se pudo crear la pregunta', 'Faltan campos requeridos', 3000, true);
+            
+            if (typeof errorInput !== 'undefined') {
+                errorInput(input, true, 3000, true);
+                errorInput(select, true, 3000, true);
+            }
             return;
         }
 
@@ -101,30 +89,78 @@ const crearPregunta = {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                
-                body: JSON.stringify({ nueva_pregunta: valor, eneagrama_usuario_id: eneagrama, valor: selectValue})
+                body: JSON.stringify({ 
+                    nueva_pregunta: valor, 
+                    eneagrama_usuario_id: eneagrama, 
+                    valor: selectValue
+                })
             });
 
             const data = await response.json();
 
-            // Ejemplo de feedback visual
             if (data.success) {
                 fireSweetAlert2Simple('success', 'Éxito', 'La pregunta fue creada correctamente', 3000, true);
-                this.reloadListado();
-                //alert('Pregunta creada correctamente (dummy)');
+                await this.reloadListado();
+                
+                const input = document.querySelector('input[name="nueva_pregunta"]');
+                const select = document.querySelector('select[name="valor"]');
+                if (input) input.value = '';
+                if (select) select.value = '';
             } else {
                 fireSweetAlert2Simple('error', 'Error', data.message, 3000, true);
-                //alert('Error al crear pregunta (dummy)');
             }
         } catch (error) {
             console.error('Error en fetch:', error);
+            fireSweetAlert2Simple('error', 'Error', 'Ocurrió un error al crear la pregunta', 3000, true);
         }
-    },
-
-    
+    }
 };
 
-// Ejecutar automáticamente al cargar el módulo
-crearPregunta.init();
+// ============================================
+// HANDLER GLOBAL - Singleton pattern
+// ============================================
+// Guardamos la referencia de la función para poder removerla correctamente
+if (!window._handleClickPregunta) {
+    window._handleClickPregunta = function(e) {
+        if (e.target.matches('.btn-crear') || e.target.closest('.btn-crear')) {
+            console.log('🎯 Click detectado en .btn-crear');
+            
+            const input = document.querySelector('input[name="nueva_pregunta"]');
+            const valor = input ? input.value : '';
+            const eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]')?.value;
+            const select = document.querySelector('select[name="valor"]');
+            const selectValue = select?.value;
+
+            console.log('📊 Datos encontrados:', {
+                hasInput: !!input,
+                hasEneagrama: !!eneagrama,
+                hasSelect: !!select,
+                valor,
+                selectValue
+            });
+
+            if (eneagrama && selectValue) {
+                crearPregunta.crearRegistro(valor, eneagrama, selectValue);
+            } else {
+                console.warn('⚠️ Faltan elementos en el DOM');
+            }
+        }
+    };
+}
+
+// Función para inicializar el listener
+function initCrearPregunta() {
+    // Remover listener anterior si existe
+    document.body.removeEventListener('click', window._handleClickPregunta);
+    // Agregar listener
+    document.body.addEventListener('click', window._handleClickPregunta);
+    console.log('✅ crearPregunta.js - Event listener inicializado');
+}
+
+// Inicializar inmediatamente
+initCrearPregunta();
+
+// Reinicializar después de navegación Livewire
+document.addEventListener('livewire:navigated', initCrearPregunta);
 
 export default crearPregunta;

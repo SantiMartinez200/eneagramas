@@ -38,6 +38,9 @@ document.addEventListener('click', async function (e) {
 
         const html = await res.text();
         wrapper.innerHTML = html;
+        
+        // ⚠️ YA NO ES NECESARIO LLAMAR A init()
+        // Los event listeners están configurados globalmente
         console.log('✅ Partial actualizado correctamente.');
 
         // Esperamos al render antes de scrollear

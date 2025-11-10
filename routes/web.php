@@ -28,7 +28,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('appearance.edit');
     
     
-    Route::get('eneagrama/formulario', [EneagramaController::class, 'form'])->name('eneagrama.formulario');
+    Route::get('eneagrama/formulario', [EneagramaController::class, 'formSimple'])->name('eneagrama.formulario');
+
+    Route::get('/eneagramas/{seccion?}', [EneagramaController::class, 'form'])
+        ->where('seccion', 'preguntas|frases|verbos')
+        ->name('eneagramas.form');
+
     Route::get('eneagrama/listado',[EneagramaController::class,'list'])->name('eneagrama.listado');
 
     Route::get('eneagrama/preguntas/reload', [EneagramaController::class,'listPreguntas'])->name('eneagrama.listado.relaod');

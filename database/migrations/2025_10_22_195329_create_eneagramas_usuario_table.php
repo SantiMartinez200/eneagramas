@@ -17,7 +17,7 @@ return new class extends Migration
         // Foreign key con tabla users
         $table->foreignId('user_id')
               ->constrained('users')
-              ->restrictOnDelete();
+              ->onDelete('cascade');
         $table->foreignId('base_id')
             ->constrianed('eneagramas_base');
         $table->timestamps();

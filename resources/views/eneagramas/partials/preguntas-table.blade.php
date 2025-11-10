@@ -50,7 +50,7 @@
                                         </tr>
                                     @foreach ($preguntas as $i => $pregunta)
                                         <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/70 transition-colors">
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $i + 1 }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300"> {{ $preguntas->firstItem() + $i }}</td>
                                             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                                                 <div class="truncate max-w-xl" title="{{ $pregunta->pregunta }}">
                                                     {{ $pregunta->pregunta }}

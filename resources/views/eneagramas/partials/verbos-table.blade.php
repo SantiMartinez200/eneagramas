@@ -25,7 +25,7 @@
                                     </tr>
                                     @foreach ($verbos as $i => $verbo)
                                         <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/70 transition-colors">
-                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $i + 1 }}</td>
+                                            <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $verbos->firstItem() + $i }}</td>
                                             <td class="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{{ $verbo->verbo }}</td>
 
                                             <td class="px-4 py-3 text-right">

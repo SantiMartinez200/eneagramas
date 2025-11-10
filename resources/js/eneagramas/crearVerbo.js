@@ -1,25 +1,9 @@
-var input;
-var eneagrama;
-
-
 const crearVerbo = {
-    init() {
-        //delegacion de eventos en click 
-        document.body.addEventListener('click', (e) => {
-            if (e.target.matches('.btn-crear-verbo')) {
-                input = document.querySelector('input[name="nuevo_verbo"]');
-                const valor = input ? input.value : '';
-                eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]').value;
-                this.crearRegistro(valor,eneagrama);
-            }
-        });
-    },
     async reloadListado() {
         const overlay = document.getElementById('overlay-verbos');
 
         try {
-            // Mostrar overlay
-            overlay.classList.remove('hidden');
+            overlay?.classList.remove('hidden');
 
             const response = await fetch('/eneagrama/verbos/reload', {
                 method: 'GET',
@@ -36,9 +20,12 @@ const crearVerbo = {
 
             const data = await response.json();
             const tbody = document.querySelector('.tVerbos tbody');
-            const firstRow = tbody.querySelector('tr'); // fila del input
+            
+            if (!tbody) return;
+            
+            const firstRow = tbody.querySelector('tr');
             tbody.innerHTML = '';
-            tbody.appendChild(firstRow);
+            if (firstRow) tbody.appendChild(firstRow);
 
             data.eneagrama.verbos.forEach((verbo, i) => {
                 const tr = document.createElement('tr');
@@ -65,12 +52,13 @@ const crearVerbo = {
             console.error(error);
             fireSweetAlert2Simple('error', 'Error', 'No fue posible cargar el listado', 3000, true);
         } finally {
-            // Ocultar overlay
-            overlay.classList.add('hidden');
+            overlay?.classList.add('hidden');
         }
     },
-    //el input
-     async crearRegistro(valor,eneagrama) {
+
+    async crearRegistro(valor, eneagrama) {
+        console.log('📝 Intentando crear verbo:', { valor, eneagrama });
+
         if (isNaN(eneagrama)) {
             fireSweetAlert2Simple('error', 'Error', 'No fue posible realizar la operación', 3000, true);
             console.error('Falta identificador de eneagrama o algún valor no es numérico.');
@@ -78,9 +66,11 @@ const crearVerbo = {
         }
 
         if (!valor) {
-            //tratar de disparar el error del backend
+            const input = document.querySelector('input[name="nuevo_verbo"]');
             fireSweetAlert2Simple('error', 'No se pudo crear el verbo', 'El campo está vacío', 3000, true);
-            errorInput(input,true,3000,true);
+            if (typeof errorInput !== 'undefined') {
+                errorInput(input, true, 3000, true);
+            }
             return;
         }
 
@@ -92,30 +82,71 @@ const crearVerbo = {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                
-                body: JSON.stringify({ nuevo_verbo: valor, eneagrama_usuario_id: eneagrama,})
+                body: JSON.stringify({ 
+                    nuevo_verbo: valor, 
+                    eneagrama_usuario_id: eneagrama
+                })
             });
 
             const data = await response.json();
 
-            // Ejemplo de feedback visual
             if (data.success) {
-                fireSweetAlert2Simple('success', 'Éxito', 'La verbo fue creada correctamente', 3000, true);
-                this.reloadListado();
-                //alert('Verbo creado correctamente (dummy)');
+                fireSweetAlert2Simple('success', 'Éxito', 'El verbo fue creado correctamente', 3000, true);
+                await this.reloadListado();
+                
+                const input = document.querySelector('input[name="nuevo_verbo"]');
+                if (input) input.value = '';
             } else {
                 fireSweetAlert2Simple('error', 'Error', data.message, 3000, true);
-                //alert('Error al crear verbo (dummy)');
             }
         } catch (error) {
             console.error('Error en fetch:', error);
+            fireSweetAlert2Simple('error', 'Error', 'Ocurrió un error al crear el verbo', 3000, true);
         }
-    },
-
-    
+    }
 };
 
-// Ejecutar automáticamente al cargar el módulo
-crearVerbo.init();
+// ============================================
+// HANDLER GLOBAL - Singleton pattern
+// ============================================
+// Guardamos la referencia de la función para poder removerla correctamente
+if (!window._handleClickVerbo) {
+    window._handleClickVerbo = function(e) {
+        if (e.target.matches('.btn-crear-verbo') || e.target.closest('.btn-crear-verbo')) {
+            console.log('🎯 Click detectado en .btn-crear-verbo');
+            
+            const input = document.querySelector('input[name="nuevo_verbo"]');
+            const valor = input ? input.value : '';
+            const eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]')?.value;
+            
+            console.log('📊 Datos encontrados:', {
+                hasInput: !!input,
+                hasEneagrama: !!eneagrama,
+                valor
+            });
+
+            if (eneagrama) {
+                crearVerbo.crearRegistro(valor, eneagrama);
+            } else {
+                console.warn('⚠️ Falta eneagrama_usuario_id en el DOM');
+            }
+        }
+    };
+}
+
+// Función para inicializar el listener
+function initCrearVerbo() {
+    // Remover listener anterior si existe
+    document.body.removeEventListener('click', window._handleClickVerbo);
+    // Agregar listener
+    document.body.addEventListener('click', window._handleClickVerbo);
+    console.log('✅ crearVerbo.js - Event listener inicializado');
+}
+
+// Inicializar inmediatamente
+initCrearVerbo();
+
+// Reinicializar después de navegación Livewire
+document.addEventListener('livewire:navigated', initCrearVerbo);
 
 export default crearVerbo;

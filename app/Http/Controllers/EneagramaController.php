@@ -77,16 +77,15 @@ class EneagramaController extends Controller
                  
             });
 
-            return redirect()->back()
-            ->with('success', 'Eneagrama creado exitosamente.'); 
+            return redirect()->route('eneagramas.form', ['seccion' => 'preguntas'])->with('success', 'Eneagrama creado exitosamente.');
         } catch (ModelNotFoundException $e) {
             return redirect()->back()->with('error', 'No se encontró la base especificada.');
         } catch (Exception $e) {
             // Error general en la transacción
-            return redirect()->back()
-            ->with('error', 'Ocurrió un error al crear el cuestionario: ' . $e->getMessage());
+            Log::warning($e->getMessage() . "   <- Error al crear cuestionario eneagrama de usuario");
+            return redirect()->back()->with('error', 'Ocurrió un error al crear el cuestionario');
         }
-        Log::info('Resultado transacción Eneagrama', ['resultado' => $resultado]);
+        Log::notice('Resultado transacción Eneagrama', ['resultado' => $resultado]);
 
     }
 
@@ -121,109 +120,101 @@ class EneagramaController extends Controller
      * Misma función que form solo que trae datos para reloadListado() del front para las preguntas.
      * Consulta más liviana.
      */
-    public function listPreguntas(){
-        $user = auth()->user();
-        $userId = $user->id;
-        $UsuarioConEneagrama = User::with([
-            'eneagrama' => function($q) {
-                $q->with(['preguntas' => function($q2) {
-                    $q2->orderBy('created_at', 'DESC');
-                }]);
-            },
-        ])
-        ->where('id', $userId)
-        ->whereHas('eneagrama')
-        ->orderBy('created_at','DESC')
-        ->first();
+   public function listPreguntas() {
+    $user = auth()->user();
 
-       return response()->json($UsuarioConEneagrama);
+    $UsuarioConEneagrama = User::with([
+        'eneagrama' => function($q) {
+            $q->with(['preguntas' => function($q2) {
+                $q2->orderBy('created_at', 'DESC')->paginate(10);
+            }]);
+        },
+    ])
+    ->where('id', $user->id)
+    ->whereHas('eneagrama')
+    ->first();
 
-    }
+    return response()->json($UsuarioConEneagrama);
+}
 
-    public function listFrases(){
-        $user = auth()->user();
-        $userId = $user->id;
-        $UsuarioConEneagrama = User::with([
-            'eneagrama' => function($q) {
-                $q->with(['frases' => function($q2) {
-                    $q2->orderBy('created_at', 'DESC');
-                }]);
-            },
-        ])
-        ->where('id', $userId)
-        ->whereHas('eneagrama')
-        ->orderBy('created_at','DESC')
-        ->first();
+public function listFrases() {
+    $user = auth()->user();
 
-       return response()->json($UsuarioConEneagrama);
+    $UsuarioConEneagrama = User::with([
+        'eneagrama' => function($q) {
+            $q->with(['frases' => function($q2) {
+                $q2->orderBy('created_at', 'DESC')->paginate(10);
+            }]);
+        },
+    ])
+    ->where('id', $user->id)
+    ->whereHas('eneagrama')
+    ->first();
 
-    }
+    return response()->json($UsuarioConEneagrama);
+}
 
-    public function listVerbos(){
-        $user = auth()->user();
-        $userId = $user->id;
-        $UsuarioConEneagrama = User::with([
-            'eneagrama' => function($q) {
-                $q->with(['verbos' => function($q2) {
-                    $q2->orderBy('created_at', 'DESC');
-                }]);
-            },
-        ])
-        ->where('id', $userId)
-        ->whereHas('eneagrama')
-        ->orderBy('created_at','DESC')
-        ->first();
+public function listVerbos() {
+    $user = auth()->user();
 
-       return response()->json($UsuarioConEneagrama);
+    $UsuarioConEneagrama = User::with([
+        'eneagrama' => function($q) {
+            $q->with(['verbos' => function($q2) {
+                $q2->orderBy('created_at', 'DESC')->paginate(10);
+            }]);
+        },
+    ])
+    ->where('id', $user->id)
+    ->whereHas('eneagrama')
+    ->first();
 
-    }
+    return response()->json($UsuarioConEneagrama);
+}
 
     /**
      * Mostrar el eneagrama que tiene asignado el usuario.
      * Se pasa como parámetro el usuario logeado.
      * Retorna una vista con los datos del eneagrama o incita a crear un eneagrama caso contrario.
      */
-    public function form(Request $request)
+
+    public function formSimple(){
+         return view('eneagramas.formularioSimple');
+    }
+
+    public function form(Request $request, $seccion = 'preguntas')
     {
         $user = auth()->user();
         $eneagrama = $user->eneagrama;
-        $preguntas = $eneagrama ? $eneagrama->preguntas()->paginate(1, ['*'], 'page_preguntas') : collect();
-        $frases    = $eneagrama ? $eneagrama->frases()->paginate(1, ['*'], 'page_frases') : collect();
-        $verbos    = $eneagrama ? $eneagrama->verbos()->paginate(1, ['*'], 'page_verbos') : collect();
-if ($request->ajax()) {
-    try {
-        $tabla = $request->get('tabla');
 
-        switch ($tabla) {
-            case 'frases':
-                return view('eneagramas.partials.frases-table', compact('frases'))->render();
+        $preguntas = $eneagrama ? $eneagrama->preguntas()->paginate(10, ['*'], 'page_preguntas') : collect();
+        $frases    = $eneagrama ? $eneagrama->frases()->paginate(10, ['*'], 'page_frases') : collect();
+        $verbos    = $eneagrama ? $eneagrama->verbos()->paginate(10, ['*'], 'page_verbos') : collect();
 
-            case 'verbos':
-                return view('eneagramas.partials.verbos-table', compact('verbos'))->render();
-
-            default:
-                return view('eneagramas.partials.preguntas-table', compact('preguntas'))->render();
-        }
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error' => true,
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ], 500);
-    }
-}
+        // Si la request viene por AJAX (cambio de tabla dinámico)
         if ($request->ajax()) {
-            if ($request->has('tabla') && $request->tabla === 'frases') {
-                return view('partials.frases-table', compact('frases'))->render();
-            } elseif ($request->has('tabla') && $request->tabla === 'verbos') {
-                return view('partials.verbos-table', compact('verbos'))->render();
-            } else {
-                return view('partials.preguntas-table', compact('preguntas'))->render();
+            $tabla = $request->get('tabla') ?? $seccion;
+
+            switch ($tabla) {
+                case 'frases':
+                    return view('eneagramas.partials.frases-table', compact('frases'))->render();
+
+                case 'verbos':
+                    return view('eneagramas.partials.verbos-table', compact('verbos'))->render();
+
+                default:
+                    return view('eneagramas.partials.preguntas-table', compact('preguntas'))->render();
             }
         }
 
-        return view('eneagramas.form', compact('user','eneagrama','preguntas', 'frases', 'verbos'));
+        // Si la request NO es AJAX → renderiza la vista completa según la sección pedida
+        switch ($seccion) {
+            case 'frases':
+                return view('eneagramas.frasesView', compact('user', 'eneagrama', 'frases'));
+            case 'verbos':
+                return view('eneagramas.verbosView', compact('user', 'eneagrama', 'verbos'));
+            default:
+                return view('eneagramas.preguntasView', compact('user', 'eneagrama', 'preguntas'));
+        }
     }
     /**
      * Display the specified resource.

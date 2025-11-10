@@ -7,26 +7,14 @@
             <div class="flex flex-col gap-2 p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
                 <h1 class="text-3xl font-semibold text-gray-900 dark:text-gray-100">Formulario</h1>
                 <p class="text-gray-600 dark:text-gray-400">
-                    Este es el listado de preguntas que deben completar los usuarios.
+                    Estos son los verbos disponibles para los usuarios.
                 </p>
             </div>
 
             <!-- Contenido principal -->
             <div class="p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
-                @if ($user && $eneagrama && $preguntas->isNotEmpty())
+                @if ($user && $eneagrama && $verbos->isNotEmpty())
                     <input type="hidden" name="eneagrama_usuario_id" value="{{ $eneagrama->id }}">
-                    <p class="mb-4 text-gray-700 dark:text-gray-300">
-                        Por favor tómate tu tiempo para revisar las preguntas. Al final del listado encontrarás la sección de frases y verbos.
-                    </p>
-
-                    <div id="preguntas-wrapper" class="partial-wrapper">
-                        @include('eneagramas.partials.preguntas-table')
-                    </div>
-                    
-                    <div id="frases-wrapper" class="partial-wrapper">
-                        @include('eneagramas.partials.frases-table')
-                    </div>
-                    
                     <div id="verbos-wrapper" class="partial-wrapper">
                         @include('eneagramas.partials.verbos-table')
                     </div>
@@ -82,10 +70,5 @@
             @endif
 
         </div>
-    </div>
-@vite(['resources/js/eneagramas/crearPregunta.js'])
-@vite(['resources/js/eneagramas/crearFrase.js'])
-@vite(['resources/js/eneagramas/crearVerbo.js'])
-@vite(['resources/js/eneagramas/paginacionPreguntas.js'])
 
 </x-layouts.app>

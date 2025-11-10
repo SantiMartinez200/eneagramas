@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('eneagramas_preguntas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('eneagramas_base_id')->constrained('eneagramas_base')->restrictOnDelete();
+            $table->foreignId('eneagramas_base_id')->constrained('eneagramas_base')->onDelete('cascade');
             $table->string('pregunta'); //la pregunta
             $table->integer('valor'); //el valor chakral papu
             $table->timestamps();

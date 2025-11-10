@@ -1,24 +1,9 @@
-var input;
-var eneagrama;
-
 const crearFrase = {
-    init() {
-        //delegacion de eventos en click 
-        document.body.addEventListener('click', (e) => {
-            if (e.target.matches('.btn-crear-frase')) {
-                input = document.querySelector('input[name="nueva_frase"]');
-                const valor = input ? input.value : '';
-                eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]').value;
-                this.crearRegistro(valor,eneagrama);
-            }
-        });
-    },
     async reloadListado() {
         const overlay = document.getElementById('overlay-frases');
 
         try {
-            // Mostrar overlay
-            overlay.classList.remove('hidden');
+            overlay?.classList.remove('hidden');
 
             const response = await fetch('/eneagrama/frases/reload', {
                 method: 'GET',
@@ -35,9 +20,12 @@ const crearFrase = {
 
             const data = await response.json();
             const tbody = document.querySelector('.tFrases tbody');
-            const firstRow = tbody.querySelector('tr'); // fila del input
+            
+            if (!tbody) return;
+            
+            const firstRow = tbody.querySelector('tr');
             tbody.innerHTML = '';
-            tbody.appendChild(firstRow);
+            if (firstRow) tbody.appendChild(firstRow);
 
             data.eneagrama.frases.forEach((frase, i) => {
                 const tr = document.createElement('tr');
@@ -64,12 +52,13 @@ const crearFrase = {
             console.error(error);
             fireSweetAlert2Simple('error', 'Error', 'No fue posible cargar el listado', 3000, true);
         } finally {
-            // Ocultar overlay
-            overlay.classList.add('hidden');
+            overlay?.classList.add('hidden');
         }
     },
-    //el input
-     async crearRegistro(valor,eneagrama) {
+
+    async crearRegistro(valor, eneagrama) {
+        console.log('📝 Intentando crear frase:', { valor, eneagrama });
+
         if (isNaN(eneagrama)) {
             fireSweetAlert2Simple('error', 'Error', 'No fue posible realizar la operación', 3000, true);
             console.error('Falta identificador de eneagrama');
@@ -77,9 +66,11 @@ const crearFrase = {
         }
 
         if (!valor) {
-            //tratar de disparar el error del backend
+            const input = document.querySelector('input[name="nueva_frase"]');
             fireSweetAlert2Simple('error', 'No se pudo crear la frase', 'El campo está vacío', 3000, true);
-            errorInput(input,true,3000,true);
+            if (typeof errorInput !== 'undefined') {
+                errorInput(input, true, 3000, true);
+            }
             return;
         }
 
@@ -91,30 +82,71 @@ const crearFrase = {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                
-                body: JSON.stringify({ nueva_frase: valor, eneagrama_usuario_id: eneagrama})
+                body: JSON.stringify({ 
+                    nueva_frase: valor, 
+                    eneagrama_usuario_id: eneagrama
+                })
             });
 
             const data = await response.json();
 
-            // Ejemplo de feedback visual
             if (data.success) {
                 fireSweetAlert2Simple('success', 'Éxito', 'La frase fue creada correctamente', 3000, true);
-                this.reloadListado();
-                //alert('frase creada correctamente (dummy)');
+                await this.reloadListado();
+                
+                const input = document.querySelector('input[name="nueva_frase"]');
+                if (input) input.value = '';
             } else {
                 fireSweetAlert2Simple('error', 'Error', data.message, 3000, true);
-                //alert('Error al crear frase (dummy)');
             }
         } catch (error) {
             console.error('Error en fetch:', error);
+            fireSweetAlert2Simple('error', 'Error', 'Ocurrió un error al crear la frase', 3000, true);
         }
-    },
-
-    
+    }
 };
 
-// Ejecutar automáticamente al cargar el módulo
-crearFrase.init();
+// ============================================
+// HANDLER GLOBAL - Singleton pattern
+// ============================================
+// Guardamos la referencia de la función para poder removerla correctamente
+if (!window._handleClickFrase) {
+    window._handleClickFrase = function(e) {
+        if (e.target.matches('.btn-crear-frase') || e.target.closest('.btn-crear-frase')) {
+            console.log('🎯 Click detectado en .btn-crear-frase');
+            
+            const input = document.querySelector('input[name="nueva_frase"]');
+            const valor = input ? input.value : '';
+            const eneagrama = document.querySelector('input[name="eneagrama_usuario_id"]')?.value;
+            
+            console.log('📊 Datos encontrados:', {
+                hasInput: !!input,
+                hasEneagrama: !!eneagrama,
+                valor
+            });
+
+            if (eneagrama) {
+                crearFrase.crearRegistro(valor, eneagrama);
+            } else {
+                console.warn('⚠️ Falta eneagrama_usuario_id en el DOM');
+            }
+        }
+    };
+}
+
+// Función para inicializar el listener
+function initCrearFrase() {
+    // Remover listener anterior si existe
+    document.body.removeEventListener('click', window._handleClickFrase);
+    // Agregar listener
+    document.body.addEventListener('click', window._handleClickFrase);
+    console.log('✅ crearFrase.js - Event listener inicializado');
+}
+
+// Inicializar inmediatamente
+initCrearFrase();
+
+// Reinicializar después de navegación Livewire
+document.addEventListener('livewire:navigated', initCrearFrase);
 
 export default crearFrase;

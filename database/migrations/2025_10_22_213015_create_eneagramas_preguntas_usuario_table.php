@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('eneagramas_preguntas_usuario', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('eneagrama_usuario_id')->constrained('eneagramas_usuario')->restrictOnDelete(); //el ID del eneagrama que corresponde a un usuario
+            $table->foreignId('eneagrama_usuario_id')->constrained('eneagramas_usuario')->onDelete('cascade'); //el ID del eneagrama que corresponde a un usuario
             $table->string('pregunta');
             $table->integer('valor');
             $table->timestamps();
