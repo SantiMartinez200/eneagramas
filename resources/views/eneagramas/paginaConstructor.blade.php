@@ -9,7 +9,7 @@
                 </p>
             </div>
             </div>
-            <div class="p-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
+            <div class="p-6 mt-6 rounded-xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800">
                 <div id="pagina-wrapper" class="partial-wrapper">
                     @include('eneagramas.partials.pagina-constructor')
                 </div>
